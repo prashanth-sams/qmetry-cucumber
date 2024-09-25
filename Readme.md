@@ -1,7 +1,12 @@
-# qmetry-cucumber
-> Sync cucumber automation test results with Qmetry Test Cycle
+![qmetry-cucumber](https://github.com/user-attachments/assets/e2634d60-e8f6-4739-8d07-f67b90742376)
 
-## Getting started
+<h3 align="center">qmetry-cucumber</h3>
+
+<p align="center">
+Sync cucumber automation test results with Qmetry Test Cycle
+</p>
+
+## Getting Started
 ```
 npm install --save-dev qmetry-cucumber
 ```
@@ -20,7 +25,7 @@ Create `qmetry.config.json` file in the test project's root folder and add the b
     "description": "<test description>"
 }
 ```
-**Notes:** `summary` and `description` fields are optional.
+Here, `summary` and `description` fields are optional.
 
 #### Feature
 ```

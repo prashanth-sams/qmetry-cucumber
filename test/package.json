@@ -20,6 +20,7 @@
     "@cucumber/cucumber": "^10.8.0",
     "@cucumber/pretty-formatter": "^1.0.1",
     "dotenv": "^16.4.5",
+    "qmetry-cucumber": "^1.0.0",
     "supports-color": "^9.4.0"
   }
 }
