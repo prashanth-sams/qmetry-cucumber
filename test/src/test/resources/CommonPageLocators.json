@@ -1,0 +1,15 @@
+{
+    "name": "Common Page",
+    "webElements": [
+        {
+            "elementName": "sidePanel",
+            "selectorValue": ".oxd-sidepanel-body"
+        }
+    ],
+    "constants": [
+        {
+            "name": "url",
+            "value": "/web/index.php/"
+        }
+    ]
+}

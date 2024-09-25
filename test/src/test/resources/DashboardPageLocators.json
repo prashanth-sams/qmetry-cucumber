@@ -1,0 +1,27 @@
+{
+    "name": "Dashboard Page",
+    "webElements": [
+        {
+            "elementName": "logo",
+            "selectorValue": ".oxd-brand-banner img"
+        },
+        {
+            "elementName": "header",
+            "selectorValue": "h6"
+        },
+        {
+            "elementName": "dashboardWidget",
+            "selectorValue": ".orangehrm-dashboard-widget"
+        }
+    ],
+    "constants": [
+        {
+            "name": "url",
+            "value": "/web/index.php/dashboard/index"
+        },
+        {
+            "name": "header",
+            "value": "Dashboard"
+        }
+    ]
+}

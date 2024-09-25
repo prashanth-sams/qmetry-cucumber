@@ -1,0 +1,7 @@
+node_modules/
+test-results/
+test-result/
+dist/
+.DS_Store
+*/.DS_Store
+*/**/.DS_Store

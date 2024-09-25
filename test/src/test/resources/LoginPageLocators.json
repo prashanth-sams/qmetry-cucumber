@@ -1,0 +1,23 @@
+{
+    "name": "Login Page",
+    "webElements": [
+        {
+            "elementName": "username",
+            "selectorValue": "Username"
+        },
+        {
+            "elementName": "password",
+            "selectorValue": "Password"
+        },
+        {
+            "elementName": "login",
+            "selectorValue": "Login"
+        }
+    ],
+    "constants": [
+        {
+            "name": "url",
+            "value": "/web/index.php/auth/login"
+        }
+    ]
+}
