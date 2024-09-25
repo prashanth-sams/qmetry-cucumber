@@ -9,3 +9,8 @@
 tsconfig.json
 tsup.config.ts
 /test
+
+node.config.mjs
+jest.config.mjs
+
+.github/*
