@@ -1,10 +1,8 @@
+# qmetry-cucumber
+
 ![qmetry-cucumber](https://github.com/user-attachments/assets/e2634d60-e8f6-4739-8d07-f67b90742376)
 
-<h3 align="center">qmetry-cucumber</h3>
-
-<p align="center">
-Sync cucumber automation test results with Qmetry Test Cycle
-</p>
+<p align="center"><b>Sync cucumber automation test results with Qmetry Test Cycle</b></p>
 
 ## Getting Started
 ```
