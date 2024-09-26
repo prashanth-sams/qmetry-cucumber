@@ -18,12 +18,13 @@ Create `qmetry.config.json` file in the test project's root folder and add the b
     "baseUrl": "https://<your base url>",
     "apiKey": "<project api key>",
     "authorization": "<jira auth creds encoded by base64>",
-    "projectId": <your project id>
+    "projectId": <your project id>,
+    "testCycleId": <your test cycle id>,
     "summary": "<test summary>",
     "description": "<test description>"
 }
 ```
-Here, `summary` and `description` fields are optional.
+Here, `testCycleId`, `summary` and `description` fields are optional.
 
 #### Feature
 ```

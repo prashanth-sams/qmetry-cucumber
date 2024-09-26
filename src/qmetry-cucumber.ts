@@ -4,11 +4,15 @@ import { getConfig } from './config';
 import { delay, checkStatusId } from './utils';
 
 export async function updateQmetryStatus (name: string, status?: TestStepResultStatus) {
+    const config = await getConfig();
 
-    const testCycleId = await createTestCycle().then((data) => {
-        return data[0];
-    });
-    
+    let testCycleId;
+
+    testCycleId = config.testCycleId?.trim() || (await createTestCycle())[0];
+    const isValid = await validateTestCycleId(testCycleId);
+
+    if (!isValid) testCycleId = (await createTestCycle())[0];
+
     linkAllTestCases(testCycleId);
 
     const matches = name.match(/\[.*?\]/g);
@@ -218,4 +222,26 @@ export async function linkAllTestCases(testCycleId: string): Promise<void> {
         .catch((error) => {
             console.error('Error linking test cases:', error);
         });
+}
+
+export async function validateTestCycleId(testCycleId: string): Promise<boolean> {
+    const config = await getConfig();
+
+    const url = `${config.baseUrl}/rest/qtm4j/ui/latest/testcycles/${testCycleId}`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'apiKey': `${config.apiKey}`,
+        'Authorization': `${config.authorization}`
+    };
+
+    const response = await axios.get(url, { headers })
+        .then((response) => {
+            return response.status === 200;
+        })
+        .catch((error) => {
+            return false;
+        });
+    
+    return response;
 }

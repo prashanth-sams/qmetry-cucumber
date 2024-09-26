@@ -69,6 +69,7 @@ export interface QmetryConfig {
     apiKey: string;
     authorization: string;
     projectId: number;
+    testCycleId?: string;
     summary?: string;
     description?: string;
 }
