@@ -12,5 +12,6 @@ tsup.config.ts
 
 node.config.mjs
 jest.config.mjs
+release.config.js
 
 .github/*
