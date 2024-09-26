@@ -27,8 +27,9 @@ export const getConfig = async () => {
             apiKey: data?.apiKey,
             authorization: data?.authorization, 
             projectId: data?.projectId,
+            testCycleId: data?.testCycleId,
             summary: data?.summary || 'Test Cycle Summary',
-            description: data?.description || 'Automated status update using qmetry-cucumber',
+            description: data?.description || 'Automated status update using qmetry-cucumber'
         };
     } catch (error) {
         console.error('Error fetching configuration:', error);
