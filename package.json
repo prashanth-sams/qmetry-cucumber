@@ -1,6 +1,6 @@
 {
   "name": "qmetry-cucumber",
-  "version": "1.1.2",
+  "version": "2.1.2",
   "description": "Sync cucumber automation test results with Qmetry Test Cycle",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
