@@ -86,11 +86,27 @@ Scenario: [PRO-TC-1] [PRO-TC-2] User logs in with valid credentials
 ```
 
 #### Cucumber Hooks
+
+#### Case #1 Open API
+
+##### Hooks.ts
 ```
 import { updateQmetryStatus } from "qmetry-cucumber";
 
 After(async function ({ pickle, result }){
     updateQmetryStatus(pickle.name, result.status);
+});
+```
+
+#### Case #2 Automation API
+
+##### Hooks.ts
+```
+import { sendTestResultToQmetry } from "qmetry-cucumber";
+
+AfterAll(async function (){
+    await browser.close();
+    sendTestResultToQmetry(process.cwd() + '/test-result/reports/cucumber-report.json');
 });
 ```
 
