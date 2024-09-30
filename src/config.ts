@@ -29,7 +29,29 @@ export const getConfig = async () => {
             projectId: data?.projectId,
             testCycleId: data?.testCycleId,
             summary: data?.summary || 'Test Cycle Summary',
-            description: data?.description || 'Automated status update using qmetry-cucumber'
+            description: data?.description || 'Automated status update using qmetry-cucumber',
+            
+            automationApiKey: data?.automationApiKey,
+            automation: {
+                format: data?.automation?.format,
+                attachFile: data?.automation?.attachFile,
+                isZip: data?.automation?.isZip,
+                build: data?.automation?.build,
+                fields: {
+                    testCycle: {
+                        labels: data?.automation?.fields?.testCycle?.labels,
+                        status: data?.automation?.fields?.testCycle?.status,
+                        summary: data?.automation?.fields?.testCycle?.summary,
+                        description: data?.automation?.fields?.testCycle?.description,
+                        customFields: data?.automation?.fields?.testCycle?.customFields || [],
+                    },
+                    testCase: {
+                        labels: data?.automation?.fields?.testCase?.labels,
+                        description: data?.automation?.fields?.testCase?.description,
+                        customFields: data?.automation?.fields?.testCase?.customFields || [],
+                    },
+                },
+            }
         };
     } catch (error) {
         console.error('Error fetching configuration:', error);

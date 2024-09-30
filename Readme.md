@@ -11,8 +11,11 @@ npm install --save-dev qmetry-cucumber
 
 ## How to use
 
-#### qmetry.config.json
-Create `qmetry.config.json` file in the test project's root folder and add the below configurations.
+#### Case #1 Open API
+
+> Create `qmetry.config.json` file in the test project's root folder and add the below configurations.
+
+##### qmetry.config.json
 ```
 {
     "baseUrl": "https://<your base url>",
@@ -25,6 +28,51 @@ Create `qmetry.config.json` file in the test project's root folder and add the b
 }
 ```
 Here, `testCycleId`, `summary` and `description` fields are optional.
+
+#### Case #2 Automation API
+
+> Submit the Cucumber test output in JSON format to QMetry using the Automation API. To achieve this, create a `qmetry.config.json` file in the root directory of your test project and add the following configurations.
+
+##### qmetry.config.json
+```
+{
+    "baseUrl": "https://<your base url>",
+    "authorization": "<jira auth creds encoded by base64>",
+    
+    "automationApiKey": "<automation api key>",
+    "automation": {
+        "format": "cucumber",
+        "attachFile": true,
+        "isZip":false,
+        "build":"",
+        "fields":{ 
+            "testCycle":{ 
+                "labels": ["<your label>"],
+                "status":"Done",
+                "summary": "<test cycle summary>",
+                "description": "<test cycle description>",
+                "customFields": [
+                    {
+                        "name": "<field name; say., Environment>",
+                        "value": "<field value; say., DEV>"
+                    }
+                ]
+            },
+            "testCase":{ 
+                "labels": ["<your label>"],
+                "description": "<test case description>",
+                "customFields": [
+                    {
+                        "name": "<field name; say., Environment>",
+                        "value": "<field value; say., DEV>"
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+Here, `baseUrl`, `authorization`, `automationApiKey`, and `automation > format` are the only mandatory fields.
 
 #### Feature
 ```

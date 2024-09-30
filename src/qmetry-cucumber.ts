@@ -1,7 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
-import { TestStepResultStatus, ResponseData, ExecutionResultProps, ExecutionResult, ResultPair, TestCaseList, Keys } from './types';
+import { TestStepResultStatus, ResponseData, ExecutionResultProps, ExecutionResult, ResultPair, TestCaseList, importResultProps, Keys } from './types';
 import { getConfig } from './config';
 import { delay, checkStatusId } from './utils';
+import FormData from 'form-data';
+import fs from 'fs';
 
 export async function updateQmetryStatus (name: string, status?: TestStepResultStatus) {
     const config = await getConfig();
@@ -244,4 +246,68 @@ export async function validateTestCycleId(testCycleId: string): Promise<boolean>
         });
     
     return response;
+}
+
+export async function sendTestResultToQmetry(jsonData: any) {
+    const config = await getConfig();
+
+    const url = `${config.baseUrl}/rest/qtm4j/automation/latest/importresult`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'apiKey': `${config.automationApiKey}`,
+        'Authorization': `${config.authorization}`
+    };
+
+    if (!config?.automation?.format) {
+        throw new Error('Format is a required field but was not provided.');
+    }
+
+    const body: importResultProps = {
+        format: config.automation.format,
+        attachFile: config?.automation.attachFile,
+        isZip: config?.automation.isZip,
+        build: config?.automation.build,
+        fields: {
+            testCycle: {
+                labels: config?.automation?.fields?.testCycle?.labels,
+                status: config?.automation?.fields?.testCycle?.status,
+                summary: config?.automation?.fields?.testCycle?.summary,
+                description: config?.automation?.fields?.testCycle?.description,
+                customFields: config?.automation?.fields?.testCycle?.customFields || [],
+            },
+            testCase: {
+                labels: config?.automation?.fields?.testCase?.labels,
+                description: config?.automation?.fields?.testCase?.description,
+                customFields: config?.automation?.fields?.testCase?.customFields || [],
+            }
+        }
+    };
+
+    const response = await axios.post(url, body, { headers }).then((resp) => {
+        return resp.data.url;
+    });
+    
+    submitFile(response, jsonData);
+}
+
+export async function submitFile(url: string, jsonData: any) {
+
+    const config = await getConfig();
+    const form = new FormData();
+
+    const headers = {
+        'Content-Type': 'multipart/form-data',
+        'apiKey': `${config.automationApiKey}`,
+        'Authorization': `${config.authorization}`,  
+    };
+
+    form.append('file', fs.createReadStream(jsonData));
+
+    axios.post(url, form, { headers })
+        .then((response) => {
+        })
+        .catch((error) => {
+            console.error('Error submitting file:', error);
+        });
 }
