@@ -1,6 +1,6 @@
 {
   "name": "qmetry-cucumber",
-  "version": "1.0.1",
+  "version": "1.1.2",
   "description": "Sync cucumber automation test results with Qmetry Test Cycle",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,7 +17,7 @@
     "build": "rm -rf ./dist/* && tsup",
     "publish": "npm run build && npm publish",
     "lint": "prettier --check . && eslint .",
-    "test": "jest"
+    "test": "cd test && npm test"
   },
   "keywords": [
     "qmetry",

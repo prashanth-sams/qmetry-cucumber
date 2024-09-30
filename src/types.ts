@@ -72,4 +72,58 @@ export interface QmetryConfig {
     testCycleId?: string;
     summary?: string;
     description?: string;
+    automationApiKey?: string;
+    automation?: Automation;
+}
+
+export interface Automation {
+    format: string;
+    attachFile?: boolean;
+    isZip?: boolean;
+    build?: string;
+    fields?: {
+        testCycle?: {
+            labels?: string[];
+            status?: string;
+            summary?: string;
+            description?: string;
+            customFields?: CustomField[];
+        };
+        testCase?: {
+            labels?: string[];
+            description?: string;
+            customFields?: CustomField[];
+        }
+    }
+}
+
+export interface CustomField {
+    name: string;
+    value: string;
+}
+
+export interface ImportResultResponse {
+    url: string;
+    trackingId: string;
+}
+
+export interface importResultProps {
+    format: string;
+    attachFile?: boolean;
+    isZip?: boolean;
+    build?: string;
+    fields: {
+        testCycle: {
+            labels?: string[];
+            status?: string;
+            summary?: string;
+            description?: string;
+            customFields?: CustomField[];
+        };
+        testCase: {
+            labels?: string[];
+            description?: string;
+            customFields?: CustomField[];
+        }
+    }
 }

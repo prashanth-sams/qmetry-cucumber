@@ -5,7 +5,7 @@ import { config } from "../../../playwright.config";
 import { getEnv } from "../helper/env/env";
 import { createLogger } from "winston";
 import { options } from "../helper/utils/logger";
-import { updateQmetryStatus } from "../../../../src/qmetry-cucumber";
+import { updateQmetryStatus, sendTestResultToQmetry } from "../../../../src/qmetry-cucumber";
 
 export let context: BrowserContext;
 let browser: Browser;
@@ -71,4 +71,5 @@ After(async function ({ pickle, result }){
 
 AfterAll(async function (){
     await browser.close();
+    sendTestResultToQmetry(process.cwd() + '/test-result/reports/cucumber-report.json');
 });

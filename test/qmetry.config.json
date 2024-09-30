@@ -2,5 +2,40 @@
     "baseUrl": "",
     "apiKey": "",
     "authorization": "",
-    "projectId": 0
+    "projectId": 0,
+    "testCycleId": "",
+    "summary":"",
+    "description": "",
+
+    "automationApiKey": "",
+    "automation": {
+        "format": "cucumber",
+        "attachFile": true,
+        "isZip":false,
+        "build":"",
+        "fields":{ 
+            "testCycle":{ 
+                "labels": [""],
+                "status":"Done",
+                "summary":"",
+                "description": "",
+                "customFields": [
+                    {
+                        "name": "Environment",
+                        "value": "DEV"
+                    }
+                ]
+            },
+            "testCase":{ 
+                "labels": [""],
+                "description": "",
+                "customFields": [
+                    {
+                        "name": "Environment",
+                        "value": "DEV"
+                    }
+                ]
+            }
+        }
+    }
 }
