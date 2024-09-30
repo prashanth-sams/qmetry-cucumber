@@ -63,6 +63,56 @@ interface QmetryConfig {
     testCycleId?: string;
     summary?: string;
     description?: string;
+    automationApiKey?: string;
+    automation?: Automation;
+}
+interface Automation {
+    format: string;
+    attachFile?: boolean;
+    isZip?: boolean;
+    build?: string;
+    fields?: {
+        testCycle?: {
+            labels?: string[];
+            status?: string;
+            summary?: string;
+            description?: string;
+            customFields?: CustomField[];
+        };
+        testCase?: {
+            labels?: string[];
+            description?: string;
+            customFields?: CustomField[];
+        };
+    };
+}
+interface CustomField {
+    name: string;
+    value: string;
+}
+interface ImportResultResponse {
+    url: string;
+    trackingId: string;
+}
+interface importResultProps {
+    format: string;
+    attachFile?: boolean;
+    isZip?: boolean;
+    build?: string;
+    fields: {
+        testCycle: {
+            labels?: string[];
+            status?: string;
+            summary?: string;
+            description?: string;
+            customFields?: CustomField[];
+        };
+        testCase: {
+            labels?: string[];
+            description?: string;
+            customFields?: CustomField[];
+        };
+    };
 }
 
 declare function updateQmetryStatus(name: string, status?: TestStepResultStatus): Promise<void>;
@@ -75,5 +125,7 @@ declare function fetchTestCases(): Promise<{
 }[]>;
 declare function linkAllTestCases(testCycleId: string): Promise<void>;
 declare function validateTestCycleId(testCycleId: string): Promise<boolean>;
+declare function sendTestResultToQmetry(jsonData: any): Promise<void>;
+declare function submitFile(url: string, jsonData: any): Promise<void>;
 
-export { type ExecutionResult, type ExecutionResultProps, type Keys, type QmetryConfig, type ResponseData, type ResultPair, type TestCase, type TestCaseList, TestStepResultStatus, createTestCycle, fetchTestCases, getExecutionResultId, linkAllTestCases, updateQmetryStatus, updateTestCaseStatus, validateTestCycleId };
+export { type Automation, type CustomField, type ExecutionResult, type ExecutionResultProps, type ImportResultResponse, type Keys, type QmetryConfig, type ResponseData, type ResultPair, type TestCase, type TestCaseList, TestStepResultStatus, createTestCycle, fetchTestCases, getExecutionResultId, type importResultProps, linkAllTestCases, sendTestResultToQmetry, submitFile, updateQmetryStatus, updateTestCaseStatus, validateTestCycleId };

@@ -26,7 +26,28 @@ var getConfig = async () => {
       projectId: data?.projectId,
       testCycleId: data?.testCycleId,
       summary: data?.summary || "Test Cycle Summary",
-      description: data?.description || "Automated status update using qmetry-cucumber"
+      description: data?.description || "Automated status update using qmetry-cucumber",
+      automationApiKey: data?.automationApiKey,
+      automation: {
+        format: data?.automation?.format,
+        attachFile: data?.automation?.attachFile,
+        isZip: data?.automation?.isZip,
+        build: data?.automation?.build,
+        fields: {
+          testCycle: {
+            labels: data?.automation?.fields?.testCycle?.labels,
+            status: data?.automation?.fields?.testCycle?.status,
+            summary: data?.automation?.fields?.testCycle?.summary,
+            description: data?.automation?.fields?.testCycle?.description,
+            customFields: data?.automation?.fields?.testCycle?.customFields || []
+          },
+          testCase: {
+            labels: data?.automation?.fields?.testCase?.labels,
+            description: data?.automation?.fields?.testCase?.description,
+            customFields: data?.automation?.fields?.testCase?.customFields || []
+          }
+        }
+      }
     };
   } catch (error) {
     console.error("Error fetching configuration:", error);
@@ -59,6 +80,8 @@ function checkStatusId(result, status) {
 }
 
 // src/qmetry-cucumber.ts
+import FormData from "form-data";
+import fs2 from "fs";
 async function updateQmetryStatus(name, status) {
   const config = await getConfig();
   let testCycleId;
@@ -229,11 +252,63 @@ async function validateTestCycleId(testCycleId) {
   });
   return response;
 }
+async function sendTestResultToQmetry(jsonData) {
+  const config = await getConfig();
+  const url = `${config.baseUrl}/rest/qtm4j/automation/latest/importresult`;
+  const headers = {
+    "Content-Type": "application/json",
+    "apiKey": `${config.automationApiKey}`,
+    "Authorization": `${config.authorization}`
+  };
+  if (!config?.automation?.format) {
+    throw new Error("Format is a required field but was not provided.");
+  }
+  const body = {
+    format: config.automation.format,
+    attachFile: config?.automation.attachFile,
+    isZip: config?.automation.isZip,
+    build: config?.automation.build,
+    fields: {
+      testCycle: {
+        labels: config?.automation?.fields?.testCycle?.labels,
+        status: config?.automation?.fields?.testCycle?.status,
+        summary: config?.automation?.fields?.testCycle?.summary,
+        description: config?.automation?.fields?.testCycle?.description,
+        customFields: config?.automation?.fields?.testCycle?.customFields || []
+      },
+      testCase: {
+        labels: config?.automation?.fields?.testCase?.labels,
+        description: config?.automation?.fields?.testCase?.description,
+        customFields: config?.automation?.fields?.testCase?.customFields || []
+      }
+    }
+  };
+  const response = await axios.post(url, body, { headers }).then((resp) => {
+    return resp.data.url;
+  });
+  submitFile(response, jsonData);
+}
+async function submitFile(url, jsonData) {
+  const config = await getConfig();
+  const form = new FormData();
+  const headers = {
+    "Content-Type": "multipart/form-data",
+    "apiKey": `${config.automationApiKey}`,
+    "Authorization": `${config.authorization}`
+  };
+  form.append("file", fs2.createReadStream(jsonData));
+  axios.post(url, form, { headers }).then((response) => {
+  }).catch((error) => {
+    console.error("Error submitting file:", error);
+  });
+}
 export {
   createTestCycle,
   fetchTestCases,
   getExecutionResultId,
   linkAllTestCases,
+  sendTestResultToQmetry,
+  submitFile,
   updateQmetryStatus,
   updateTestCaseStatus,
   validateTestCycleId
