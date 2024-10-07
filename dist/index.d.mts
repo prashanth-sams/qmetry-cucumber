@@ -1,11 +1,25 @@
 declare enum TestStepResultStatus {
     UNKNOWN = "UNKNOWN",
-    PASSED = "PASSED",
     SKIPPED = "SKIPPED",
     PENDING = "PENDING",
     UNDEFINED = "UNDEFINED",
     AMBIGUOUS = "AMBIGUOUS",
-    FAILED = "FAILED"
+    FAILED = "FAILED",
+    PASSED = "PASSED"
+}
+interface CreateTestCycleResponse {
+    id: string;
+    key: string;
+}
+interface TestCasesResponse {
+    data: TestCycleData[];
+}
+interface TestCycleData {
+    id: string;
+    version: Version;
+}
+interface Version {
+    versionNo: number;
 }
 interface ExecutionResultProps {
     executionResultId: number;
@@ -86,10 +100,6 @@ interface Automation {
         };
     };
 }
-interface CustomField {
-    name: string;
-    value: string;
-}
 interface ImportResultResponse {
     url: string;
     trackingId: string;
@@ -114,18 +124,22 @@ interface importResultProps {
         };
     };
 }
+interface CustomField {
+    name: string;
+    value: string;
+}
 
 declare function updateQmetryStatus(name: string, status?: TestStepResultStatus): Promise<void>;
-declare function updateTestCaseStatus(id: string, testCaseExecutionId: number, status: TestStepResultStatus | undefined, testCycleId: string): Promise<void>;
-declare function getExecutionResultId(status: TestStepResultStatus | undefined): Promise<number>;
-declare function createTestCycle(): Promise<any>;
-declare function fetchTestCases(): Promise<{
-    id: string;
-    versionNo: number;
-}[]>;
-declare function linkAllTestCases(testCycleId: string): Promise<void>;
-declare function validateTestCycleId(testCycleId: string): Promise<boolean>;
-declare function sendTestResultToQmetry(jsonData: any): Promise<void>;
-declare function submitFile(url: string, jsonData: any): Promise<void>;
+declare function getIdsByKey(keys: string[], testCycleId: string): Promise<[string, number][]>;
+declare function testCaseExecutionIDJsonData(testCycleId: string): Promise<Response>;
+declare function updateTestCaseStatus(id: string, testCaseExecutionId: number, resultNameId: [number, string][], status: TestStepResultStatus | undefined, testCycleId: string): Promise<Response>;
+declare function getExecutionResultId(status: TestStepResultStatus | undefined): Promise<Response>;
+declare function createTestCycle(): Promise<Response>;
+declare function fetchTestCases(): Promise<Response>;
+declare function linkAllTestCases(testCycleId: string): Promise<Response>;
+declare function linkTestCases(testCycleId: string): Promise<Response>;
+declare function validateTestCycleId(testCycleId: string): Promise<Response>;
+declare function sendTestResultToQmetry(jsonData: any): Promise<Response>;
+declare function importresult(): Promise<Response>;
 
-export { type Automation, type CustomField, type ExecutionResult, type ExecutionResultProps, type ImportResultResponse, type Keys, type QmetryConfig, type ResponseData, type ResultPair, type TestCase, type TestCaseList, TestStepResultStatus, createTestCycle, fetchTestCases, getExecutionResultId, type importResultProps, linkAllTestCases, sendTestResultToQmetry, submitFile, updateQmetryStatus, updateTestCaseStatus, validateTestCycleId };
+export { type Automation, type CreateTestCycleResponse, type CustomField, type ExecutionResult, type ExecutionResultProps, type ImportResultResponse, type Keys, type QmetryConfig, type ResponseData, type ResultPair, type TestCase, type TestCaseList, type TestCasesResponse, type TestCycleData, TestStepResultStatus, type Version, createTestCycle, fetchTestCases, getExecutionResultId, getIdsByKey, type importResultProps, importresult, linkAllTestCases, linkTestCases, sendTestResultToQmetry, testCaseExecutionIDJsonData, updateQmetryStatus, updateTestCaseStatus, validateTestCycleId };
