@@ -1,12 +1,30 @@
 
 export declare enum TestStepResultStatus {
     UNKNOWN = "UNKNOWN",
-    PASSED = "PASSED",
     SKIPPED = "SKIPPED",
     PENDING = "PENDING",
     UNDEFINED = "UNDEFINED",
     AMBIGUOUS = "AMBIGUOUS",
-    FAILED = "FAILED"
+    FAILED = "FAILED",
+    PASSED = "PASSED"
+}
+
+export interface CreateTestCycleResponse {
+    id: string;
+    key: string;
+}
+
+export interface TestCasesResponse {
+    data: TestCycleData[];
+}
+
+export interface TestCycleData {
+    id: string;
+    version: Version;
+}
+
+export interface Version {
+    versionNo: number;
 }
 
 export interface ExecutionResultProps {
@@ -97,11 +115,6 @@ export interface Automation {
     }
 }
 
-export interface CustomField {
-    name: string;
-    value: string;
-}
-
 export interface ImportResultResponse {
     url: string;
     trackingId: string;
@@ -126,4 +139,9 @@ export interface importResultProps {
             customFields?: CustomField[];
         }
     }
+}
+
+export interface CustomField {
+    name: string;
+    value: string;
 }

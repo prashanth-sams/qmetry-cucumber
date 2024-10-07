@@ -10,8 +10,7 @@ const config = {
         ['@semantic-release/git', {
             assets: ['dist/*', 'package.json', 'LICENSE', 'README.md'],
             message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'
-        }],
-        "@semantic-release/npm"
+        }]
     ]
 };
 

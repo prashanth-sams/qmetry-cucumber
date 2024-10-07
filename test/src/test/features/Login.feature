@@ -1,4 +1,4 @@
-@auth
+@auth @smoke
 Feature: Authentication
 
     Background: The user lands on the OrangeHRM login page

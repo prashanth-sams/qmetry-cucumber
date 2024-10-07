@@ -56,7 +56,6 @@ var getConfig = async () => {
 };
 
 // src/utils.ts
-var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 function checkStatusId(result, status) {
   if (!status) return 0;
   const statusName = status.toString().toLowerCase();
@@ -85,60 +84,86 @@ import fs2 from "fs";
 async function updateQmetryStatus(name, status) {
   const config = await getConfig();
   let testCycleId;
-  testCycleId = config.testCycleId?.trim() || (await createTestCycle())[0];
-  const isValid = await validateTestCycleId(testCycleId);
-  if (!isValid) testCycleId = (await createTestCycle())[0];
-  linkAllTestCases(testCycleId);
-  const matches = name.match(/\[.*?\]/g);
-  const testCaseKeys = matches ? matches.map((match) => match.replace(/[\[\]]/g, "")) : [];
-  const testCaseIds = getIdsByKey(testCaseKeys, testCycleId);
-  testCaseIds.then((ids) => {
-    ids.forEach(async ([id, testCaseExecutionId]) => {
-      updateTestCaseStatus(id, testCaseExecutionId, status, testCycleId);
-    });
-  });
+  let testCycleKey;
+  if (config.testCycleId && (await validateTestCycleId(config.testCycleId.trim())).status === 200) {
+    testCycleId = config.testCycleId.trim();
+  } else {
+    try {
+      const data = await createTestCycle().then((response) => {
+        return response.json();
+      });
+      [testCycleId, testCycleKey] = [data.id, data.key];
+    } catch (error) {
+      console.error("Error creating test cycle:", error);
+    }
+  }
+  if (testCycleId) {
+    await linkAllTestCases(testCycleId);
+    const matches = name.match(/\[.*?\]/g);
+    const testCaseKeys = matches ? matches.map((match) => match.replace(/[\[\]]/g, "")) : [];
+    const testCaseIds = [];
+    try {
+      const jsonData = await testCaseExecutionIDJsonData(testCycleId).then((response) => {
+        return response.json();
+      });
+      jsonData.data.forEach((testCase) => {
+        if (testCaseKeys.includes(testCase.key)) {
+          testCaseIds.push([testCase.id, testCase.testCaseExecutionId]);
+        }
+      });
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+    for (const [id, testCaseExecutionId] of testCaseIds) {
+      const executionResultProps = await getExecutionResultId(status).then((response) => {
+        return response.json();
+      });
+      const resultNameId = [];
+      executionResultProps.forEach((results) => {
+        resultNameId.push([results.id, results.name.toLowerCase()]);
+      });
+      await updateTestCaseStatus(id, testCaseExecutionId, resultNameId, status, testCycleId);
+    }
+    ;
+  } else {
+    console.error("testCycleId is not assigned, cannot link test cases");
+  }
 }
 async function getIdsByKey(keys, testCycleId) {
   const matchingIds = [];
-  const jsonData = await testCaseExecutionIDJsonData(testCycleId);
-  jsonData.data.forEach((testCase) => {
-    if (keys.includes(testCase.key)) {
-      matchingIds.push([testCase.id, testCase.testCaseExecutionId]);
-    }
-  });
+  try {
+    const jsonData = await testCaseExecutionIDJsonData(testCycleId).then((response) => {
+      return response.json();
+    });
+    jsonData.data.forEach((testCase) => {
+      if (keys.includes(testCase.key)) {
+        matchingIds.push([testCase.id, testCase.testCaseExecutionId]);
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
   return matchingIds;
 }
 async function testCaseExecutionIDJsonData(testCycleId) {
   const config = await getConfig();
-  try {
-    const url = `${config.baseUrl}/rest/qtm4j/ui/latest/testcycles/${testCycleId}/testcases/search?maxResults=200`;
-    const headers = {
-      "Content-Type": "application/json",
-      "apiKey": `${config.apiKey}`,
-      "Authorization": `${config.authorization}`
-    };
-    const body = {
-      filter: {}
-    };
-    for (let attempt = 1; attempt <= 10; attempt++) {
-      try {
-        const response = await axios.post(url, body, { headers });
-        if (response.data.total > 0) {
-          return response.data;
-        } else {
-        }
-      } catch (error) {
-        console.error(`Attempt ${attempt}: Error creating test cycle`, error);
-      }
-      await delay(500);
-    }
-    return { total: 0, data: [] };
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
-  }
+  const url = `${config.baseUrl}/rest/qtm4j/ui/latest/testcycles/${testCycleId}/testcases/search?maxResults=200`;
+  const headers = {
+    "Content-Type": "application/json",
+    "apiKey": `${config.apiKey}`,
+    "Authorization": `${config.authorization}`
+  };
+  const body = {
+    filter: {}
+  };
+  const requestOptions = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
 }
-async function updateTestCaseStatus(id, testCaseExecutionId, status, testCycleId) {
+async function updateTestCaseStatus(id, testCaseExecutionId, resultNameId, status, testCycleId) {
   const config = await getConfig();
   const url = `${config.baseUrl}/rest/qtm4j/ui/latest/testcycles/${testCycleId}/testcase-executions/${testCaseExecutionId}`;
   const headers = {
@@ -147,12 +172,14 @@ async function updateTestCaseStatus(id, testCaseExecutionId, status, testCycleId
     "Authorization": `${config.authorization}`
   };
   const body = {
-    executionResultId: await getExecutionResultId(status)
+    executionResultId: checkStatusId(resultNameId, status)
   };
-  axios.put(url, body, { headers }).then((response) => {
-  }).catch((error) => {
-    console.error("Error updating test case:", error);
-  });
+  const requestOptions = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
 }
 async function getExecutionResultId(status) {
   const config = await getConfig();
@@ -162,12 +189,11 @@ async function getExecutionResultId(status) {
     "apiKey": `${config.apiKey}`,
     "Authorization": `${config.authorization}`
   };
-  const response = await axios.get(url, { headers });
-  const resultNameId = [];
-  response.data.forEach((results) => {
-    resultNameId.push([results.id, results.name.toLowerCase()]);
-  });
-  return checkStatusId(resultNameId, status);
+  const requestOptions = {
+    method: "GET",
+    headers
+  };
+  return fetch(url, requestOptions);
 }
 async function createTestCycle() {
   const config = await getConfig();
@@ -182,12 +208,12 @@ async function createTestCycle() {
     summary: config.summary,
     description: config.description
   };
-  const testCycleData = axios.post(url, body, { headers }).then((response) => {
-    return [response.data.id, response.data.key];
-  }).catch((error) => {
-    console.error("Error creating test cycle:", error);
-  });
-  return testCycleData;
+  const requestOptions = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
 }
 async function fetchTestCases() {
   const config = await getConfig();
@@ -203,18 +229,12 @@ async function fetchTestCases() {
       folderId: -1
     }
   };
-  const response = await axios.post(url, body, { headers }).then((response2) => {
-    const testCaseIDVersion = response2.data.data.map((testCaseList) => {
-      return {
-        id: testCaseList.id,
-        versionNo: testCaseList.version.versionNo
-      };
-    });
-    return testCaseIDVersion;
-  }).catch((error) => {
-    console.error("Error fetching test cases:", error);
-  });
-  return response;
+  const requestOptions = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
 }
 async function linkAllTestCases(testCycleId) {
   const config = await getConfig();
@@ -230,12 +250,48 @@ async function linkAllTestCases(testCycleId) {
       projectId: config.projectId
     }
   };
-  const testCases = await fetchTestCases();
+  const requestOptions = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
+}
+async function linkTestCases(testCycleId) {
+  const config = await getConfig();
+  const url = `${config.baseUrl}/rest/qtm4j/qapi/latest/testcycles/${testCycleId}/testcases`;
+  const headers = {
+    "Content-Type": "application/json",
+    "apiKey": `${config.apiKey}`,
+    "Authorization": `${config.authorization}`
+  };
+  const body = {
+    testCases: [],
+    filter: {
+      projectId: config.projectId
+    }
+  };
+  let testCases = [];
+  try {
+    const testCasesResponse = await fetchTestCases().then((response) => {
+      return response.json();
+    });
+    testCases = testCasesResponse.data.map((testCaseList) => {
+      return {
+        id: testCaseList.id,
+        versionNo: testCaseList.version.versionNo
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching test cases:", error);
+  }
   body.testCases = testCases;
-  axios.put(url, body, { headers }).then((response) => {
-  }).catch((error) => {
-    console.error("Error linking test cases:", error);
-  });
+  const requestOptions = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body)
+  };
+  return fetch(url, requestOptions);
 }
 async function validateTestCycleId(testCycleId) {
   const config = await getConfig();
@@ -245,14 +301,41 @@ async function validateTestCycleId(testCycleId) {
     "apiKey": `${config.apiKey}`,
     "Authorization": `${config.authorization}`
   };
-  const response = await axios.get(url, { headers }).then((response2) => {
-    return response2.status === 200;
-  }).catch((error) => {
-    return false;
-  });
-  return response;
+  const requestOptions = {
+    method: "GET",
+    headers
+  };
+  return fetch(url, requestOptions);
 }
 async function sendTestResultToQmetry(jsonData) {
+  const importResultResponse = await importresult().then((response2) => response2.json());
+  const config = await getConfig();
+  const form = new FormData();
+  const headers = {
+    "Content-Type": "multipart/form-data",
+    "apiKey": `${config.automationApiKey}`,
+    "Authorization": `${config.authorization}`
+  };
+  form.append("file", fs2.createReadStream(jsonData));
+  let response;
+  try {
+    response = await axios({
+      method: "post",
+      url: importResultResponse.url,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      },
+      data: form
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+  ;
+  return response;
+}
+async function importresult() {
   const config = await getConfig();
   const url = `${config.baseUrl}/rest/qtm4j/automation/latest/importresult`;
   const headers = {
@@ -283,32 +366,23 @@ async function sendTestResultToQmetry(jsonData) {
       }
     }
   };
-  const response = await axios.post(url, body, { headers }).then((resp) => {
-    return resp.data.url;
-  });
-  submitFile(response, jsonData);
-}
-async function submitFile(url, jsonData) {
-  const config = await getConfig();
-  const form = new FormData();
-  const headers = {
-    "Content-Type": "multipart/form-data",
-    "apiKey": `${config.automationApiKey}`,
-    "Authorization": `${config.authorization}`
+  const requestOptions = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
   };
-  form.append("file", fs2.createReadStream(jsonData));
-  axios.post(url, form, { headers }).then((response) => {
-  }).catch((error) => {
-    console.error("Error submitting file:", error);
-  });
+  return fetch(url, requestOptions);
 }
 export {
   createTestCycle,
   fetchTestCases,
   getExecutionResultId,
+  getIdsByKey,
+  importresult,
   linkAllTestCases,
+  linkTestCases,
   sendTestResultToQmetry,
-  submitFile,
+  testCaseExecutionIDJsonData,
   updateQmetryStatus,
   updateTestCaseStatus,
   validateTestCycleId
