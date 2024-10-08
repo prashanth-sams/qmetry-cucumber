@@ -1,5 +1,7 @@
-# qmetry-cucumber
+![NPM Version](https://img.shields.io/npm/v/qmetry-cucumber)
+![NPM Downloads](https://img.shields.io/npm/dy/qmetry-cucumber)
 
+# qmetry-cucumber
 ![qmetry-cucumber](https://github.com/user-attachments/assets/e2634d60-e8f6-4739-8d07-f67b90742376)
 
 <p align="center"><b>Sync cucumber automation test results with Qmetry Test Cycle</b></p>

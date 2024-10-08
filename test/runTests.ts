@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { sendTestResultToQmetry } from "../src/qmetry-cucumber";
+import { sendTestResultToQmetry } from "qmetry-cucumber";
 
 const TEST = process.env.TEST || 'local';  // Default to 'local' if TEST is not set
 
