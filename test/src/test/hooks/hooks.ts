@@ -5,7 +5,7 @@ import { config } from "../../../playwright.config";
 import { getEnv } from "../helper/env/env";
 import { createLogger } from "winston";
 import { options } from "../helper/utils/logger";
-import { updateQmetryStatus } from "../../../../src/qmetry-cucumber";
+import { updateQmetryStatus } from "qmetry-cucumber";
 
 export let context: BrowserContext;
 let browser: Browser;

@@ -5,6 +5,12 @@ import { delay, checkStatusId } from './utils';
 import FormData from 'form-data';
 import fs from 'fs';
 
+/**
+ * Update the status of a test case in QMetry
+ * 
+ * @param name 
+ * @param status 
+ */
 export async function updateQmetryStatus (name: string, status?: TestStepResultStatus) {
     const config = await getConfig();
 
@@ -66,6 +72,13 @@ export async function updateQmetryStatus (name: string, status?: TestStepResultS
     }    
 }
 
+/**
+ * Get the IDs of test cases by key
+ * 
+ * @param keys 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function getIdsByKey(keys: string[], testCycleId: string): Promise<[string, number][]> {
     const matchingIds: [string, number][] = [];
 
@@ -86,6 +99,12 @@ export async function getIdsByKey(keys: string[], testCycleId: string): Promise<
     return matchingIds;
 }
 
+/**
+ * This function is used to get the test case execution ID
+ * 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function testCaseExecutionIDJsonData(testCycleId: string): Promise<Response> {
     const config = await getConfig();
 
@@ -110,6 +129,16 @@ export async function testCaseExecutionIDJsonData(testCycleId: string): Promise<
     return fetch(url, requestOptions);
 }
 
+/**
+ * Update the status of a test case in QMetry
+ * 
+ * @param id 
+ * @param testCaseExecutionId 
+ * @param resultNameId 
+ * @param status 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function updateTestCaseStatus (id: string, testCaseExecutionId: number, resultNameId: [number, string][], status: TestStepResultStatus | undefined,
     testCycleId: string): Promise<Response> {
     const config = await getConfig();
@@ -135,6 +164,12 @@ export async function updateTestCaseStatus (id: string, testCaseExecutionId: num
     return fetch(url, requestOptions);
 }
 
+/**
+ * Get the execution result ID
+ * 
+ * @param status 
+ * @returns 
+ */
 export async function getExecutionResultId(status: TestStepResultStatus | undefined): Promise<Response> {
     const config = await getConfig();
 
@@ -154,6 +189,11 @@ export async function getExecutionResultId(status: TestStepResultStatus | undefi
     return fetch(url, requestOptions);
 };
 
+/**
+ * Create a test cycle in QMetry
+ * 
+ * @returns 
+ */
 export async function createTestCycle(): Promise<Response> {
     const config = await getConfig();
 
@@ -180,7 +220,11 @@ export async function createTestCycle(): Promise<Response> {
     return fetch(url, requestOptions);
 }
 
-
+/**
+ * Fetch all test cases
+ * 
+ * @returns 
+ */
 export async function fetchTestCases(): Promise<Response> {
     const config = await getConfig();
 
@@ -208,6 +252,12 @@ export async function fetchTestCases(): Promise<Response> {
     return fetch(url, requestOptions);
 }
 
+/**
+ * Link all test cases to a test cycle
+ * 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function linkAllTestCases(testCycleId: string): Promise<Response> {
     const config = await getConfig();
 
@@ -235,7 +285,12 @@ export async function linkAllTestCases(testCycleId: string): Promise<Response> {
     return fetch(url, requestOptions);
 }
 
-
+/**
+ * Link test cases to a test cycle
+ * 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function linkTestCases(testCycleId: string): Promise<Response> {
     const config = await getConfig();
 
@@ -283,6 +338,12 @@ export async function linkTestCases(testCycleId: string): Promise<Response> {
     return fetch(url, requestOptions);
 }
 
+/**
+ * Validate the test cycle ID
+ * 
+ * @param testCycleId 
+ * @returns 
+ */
 export async function validateTestCycleId(testCycleId: string): Promise<Response> {
     const config = await getConfig();
 
@@ -302,6 +363,12 @@ export async function validateTestCycleId(testCycleId: string): Promise<Response
     return fetch(url, requestOptions);
 }
 
+/**
+ * Send test results to QMetry
+ * 
+ * @param jsonData 
+ * @returns 
+ */
 export async function sendTestResultToQmetry(jsonData: any): Promise<Response> {
 
     const importResultResponse = await importresult().then(response => response.json());
@@ -336,6 +403,11 @@ export async function sendTestResultToQmetry(jsonData: any): Promise<Response> {
     return response;
 }
 
+/**
+ * Import the test results to QMetry
+ * 
+ * @returns
+ */
 export async function importresult(): Promise<Response> {
     const config = await getConfig();
 
